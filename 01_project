@@ -1,0 +1,2501 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    },
+    "language_info": {
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.8.8"
+    },
+    "toc": {
+      "base_numbering": 1,
+      "nav_menu": {},
+      "number_sections": true,
+      "sideBar": true,
+      "skip_h1_title": true,
+      "title_cell": "Table of Contents",
+      "title_sidebar": "Contents",
+      "toc_cell": false,
+      "toc_position": {
+        "height": "calc(100% - 180px)",
+        "left": "10px",
+        "top": "150px",
+        "width": "384px"
+      },
+      "toc_section_display": true,
+      "toc_window_display": true
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/okhko/practicum_portfolio_ru/blob/main/01_project\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "E0vqbgi9ay0H"
+      },
+      "source": [
+        "# Сравните данные пользователей Яндекс Музыки по городам и дням недели"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Введение\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "3plApQmDmoPd"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Сравнение Москвы и Петербурга окружено мифами. Например:\n",
+        " * Москва — мегаполис, подчинённый жёсткому ритму рабочей недели;\n",
+        " * Петербург — культурная столица, со своими вкусами.\n",
+        "\n",
+        "На данных Яндекс.Музыки вы сравните поведение пользователей двух столиц.\n",
+        "\n",
+        "**Цель исследования** — проверьте три гипотезы:\n",
+        "1. Активность пользователей зависит от дня недели. Причём в Москве и Петербурге это проявляется по-разному.\n",
+        "2. В понедельник утром в Москве преобладают одни жанры, а в Петербурге — другие. Так же и вечером пятницы преобладают разные жанры — в зависимости от города.\n",
+        "3. Москва и Петербург предпочитают разные жанры музыки. В Москве чаще слушают поп-музыку, в Петербурге — русский рэп.\n",
+        "\n",
+        "**Ход исследования**\n",
+        "\n",
+        "Данные о поведении пользователей вы получите из файла `yandex_music_project.csv`. О качестве данных ничего не известно. Поэтому перед проверкой гипотез понадобится обзор данных.\n",
+        "\n",
+        "Вы проверите данные на ошибки и оцените их влияние на исследование. Затем, на этапе предобработки вы поищете возможность исправить самые критичные ошибки данных.\n",
+        "\n",
+        "Таким образом, исследование пройдёт в три этапа:\n",
+        " 1. Обзор данных.\n",
+        " 2. Предобработка данных.\n",
+        " 3. Проверка гипотез.\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "-0cZ6J6AmmkY"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Ml1hmfXC_Zcs"
+      },
+      "source": [
+        "## Обзор данных\n",
+        "\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "AXN7PHPN_Zcs"
+      },
+      "source": [
+        "import pandas as pd"
+      ],
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "! gdown --id '1rs00pG7ACDf6HWXBk2ekgDpWjM1YFmN2'"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "wmf5-J-xlzJv",
+        "outputId": "4aef8bbf-eeb4-42f1-874f-f47ebc724bfa"
+      },
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "/usr/local/lib/python3.10/dist-packages/gdown/cli.py:121: FutureWarning: Option `--id` was deprecated in version 4.3.1 and will be removed in 5.0. You don't need to pass it anymore to use a file ID.\n",
+            "  warnings.warn(\n",
+            "Downloading...\n",
+            "From: https://drive.google.com/uc?id=1rs00pG7ACDf6HWXBk2ekgDpWjM1YFmN2\n",
+            "To: /content/yandex_music_data.csv\n",
+            "100% 4.77M/4.77M [00:00<00:00, 50.4MB/s]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df = pd.read_csv('/content/yandex_music_data.csv')"
+      ],
+      "metadata": {
+        "id": "06evbL1Rl5AF"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "oWTVX3gW_Zct",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 363
+        },
+        "outputId": "9f97e9d2-c9e1-4caa-defe-8be14917a4a3"
+      },
+      "source": [
+        "display(df.head(10))"
+      ],
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "     userID                        Track            artist   genre  \\\n",
+              "0  FFB692EC            Kamigata To Boots  The Mass Missile    rock   \n",
+              "1  55204538  Delayed Because of Accident  Andreas Rönnberg    rock   \n",
+              "2    20EC38            Funiculì funiculà       Mario Lanza     pop   \n",
+              "3  A3DD03C9        Dragons in the Sunset        Fire + Ice    folk   \n",
+              "4  E2DC1FAE                  Soul People        Space Echo   dance   \n",
+              "5  842029A1                    Преданная         IMPERVTOR  rusrap   \n",
+              "6  4CB90AA5                         True      Roman Messer   dance   \n",
+              "7  F03E1C1F             Feeling This Way   Polina Griffith   dance   \n",
+              "8  8FA1D3BE     И вновь продолжается бой               NaN  ruspop   \n",
+              "9  E772D5C0                    Pessimist               NaN   dance   \n",
+              "\n",
+              "             City        time        Day  \n",
+              "0  Saint-Petersburg  20:28:33  Wednesday  \n",
+              "1            Moscow  14:07:09     Friday  \n",
+              "2  Saint-Petersburg  20:58:07  Wednesday  \n",
+              "3  Saint-Petersburg  08:37:09     Monday  \n",
+              "4            Moscow  08:34:34     Monday  \n",
+              "5  Saint-Petersburg  13:09:41     Friday  \n",
+              "6            Moscow  13:00:07  Wednesday  \n",
+              "7            Moscow  20:47:49  Wednesday  \n",
+              "8            Moscow  09:17:40     Friday  \n",
+              "9  Saint-Petersburg  21:20:49  Wednesday  "
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-07e83e6c-a330-4611-b586-9d2a51622801\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>userID</th>\n",
+              "      <th>Track</th>\n",
+              "      <th>artist</th>\n",
+              "      <th>genre</th>\n",
+              "      <th>City</th>\n",
+              "      <th>time</th>\n",
+              "      <th>Day</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>FFB692EC</td>\n",
+              "      <td>Kamigata To Boots</td>\n",
+              "      <td>The Mass Missile</td>\n",
+              "      <td>rock</td>\n",
+              "      <td>Saint-Petersburg</td>\n",
+              "      <td>20:28:33</td>\n",
+              "      <td>Wednesday</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>55204538</td>\n",
+              "      <td>Delayed Because of Accident</td>\n",
+              "      <td>Andreas Rönnberg</td>\n",
+              "      <td>rock</td>\n",
+              "      <td>Moscow</td>\n",
+              "      <td>14:07:09</td>\n",
+              "      <td>Friday</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>20EC38</td>\n",
+              "      <td>Funiculì funiculà</td>\n",
+              "      <td>Mario Lanza</td>\n",
+              "      <td>pop</td>\n",
+              "      <td>Saint-Petersburg</td>\n",
+              "      <td>20:58:07</td>\n",
+              "      <td>Wednesday</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>A3DD03C9</td>\n",
+              "      <td>Dragons in the Sunset</td>\n",
+              "      <td>Fire + Ice</td>\n",
+              "      <td>folk</td>\n",
+              "      <td>Saint-Petersburg</td>\n",
+              "      <td>08:37:09</td>\n",
+              "      <td>Monday</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>E2DC1FAE</td>\n",
+              "      <td>Soul People</td>\n",
+              "      <td>Space Echo</td>\n",
+              "      <td>dance</td>\n",
+              "      <td>Moscow</td>\n",
+              "      <td>08:34:34</td>\n",
+              "      <td>Monday</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>5</th>\n",
+              "      <td>842029A1</td>\n",
+              "      <td>Преданная</td>\n",
+              "      <td>IMPERVTOR</td>\n",
+              "      <td>rusrap</td>\n",
+              "      <td>Saint-Petersburg</td>\n",
+              "      <td>13:09:41</td>\n",
+              "      <td>Friday</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>6</th>\n",
+              "      <td>4CB90AA5</td>\n",
+              "      <td>True</td>\n",
+              "      <td>Roman Messer</td>\n",
+              "      <td>dance</td>\n",
+              "      <td>Moscow</td>\n",
+              "      <td>13:00:07</td>\n",
+              "      <td>Wednesday</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>7</th>\n",
+              "      <td>F03E1C1F</td>\n",
+              "      <td>Feeling This Way</td>\n",
+              "      <td>Polina Griffith</td>\n",
+              "      <td>dance</td>\n",
+              "      <td>Moscow</td>\n",
+              "      <td>20:47:49</td>\n",
+              "      <td>Wednesday</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>8</th>\n",
+              "      <td>8FA1D3BE</td>\n",
+              "      <td>И вновь продолжается бой</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>ruspop</td>\n",
+              "      <td>Moscow</td>\n",
+              "      <td>09:17:40</td>\n",
+              "      <td>Friday</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>9</th>\n",
+              "      <td>E772D5C0</td>\n",
+              "      <td>Pessimist</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>dance</td>\n",
+              "      <td>Saint-Petersburg</td>\n",
+              "      <td>21:20:49</td>\n",
+              "      <td>Wednesday</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-07e83e6c-a330-4611-b586-9d2a51622801')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-07e83e6c-a330-4611-b586-9d2a51622801 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-07e83e6c-a330-4611-b586-9d2a51622801');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "<div id=\"df-71d39c25-7fe9-4f65-857c-e4f5488930d2\">\n",
+              "  <button class=\"colab-df-quickchart\" onclick=\"quickchart('df-71d39c25-7fe9-4f65-857c-e4f5488930d2')\"\n",
+              "            title=\"Suggest charts\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "     width=\"24px\">\n",
+              "    <g>\n",
+              "        <path d=\"M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z\"/>\n",
+              "    </g>\n",
+              "</svg>\n",
+              "  </button>\n",
+              "\n",
+              "<style>\n",
+              "  .colab-df-quickchart {\n",
+              "      --bg-color: #E8F0FE;\n",
+              "      --fill-color: #1967D2;\n",
+              "      --hover-bg-color: #E2EBFA;\n",
+              "      --hover-fill-color: #174EA6;\n",
+              "      --disabled-fill-color: #AAA;\n",
+              "      --disabled-bg-color: #DDD;\n",
+              "  }\n",
+              "\n",
+              "  [theme=dark] .colab-df-quickchart {\n",
+              "      --bg-color: #3B4455;\n",
+              "      --fill-color: #D2E3FC;\n",
+              "      --hover-bg-color: #434B5C;\n",
+              "      --hover-fill-color: #FFFFFF;\n",
+              "      --disabled-bg-color: #3B4455;\n",
+              "      --disabled-fill-color: #666;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart {\n",
+              "    background-color: var(--bg-color);\n",
+              "    border: none;\n",
+              "    border-radius: 50%;\n",
+              "    cursor: pointer;\n",
+              "    display: none;\n",
+              "    fill: var(--fill-color);\n",
+              "    height: 32px;\n",
+              "    padding: 0;\n",
+              "    width: 32px;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart:hover {\n",
+              "    background-color: var(--hover-bg-color);\n",
+              "    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "    fill: var(--button-hover-fill-color);\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart-complete:disabled,\n",
+              "  .colab-df-quickchart-complete:disabled:hover {\n",
+              "    background-color: var(--disabled-bg-color);\n",
+              "    fill: var(--disabled-fill-color);\n",
+              "    box-shadow: none;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-spinner {\n",
+              "    border: 2px solid var(--fill-color);\n",
+              "    border-color: transparent;\n",
+              "    border-bottom-color: var(--fill-color);\n",
+              "    animation:\n",
+              "      spin 1s steps(1) infinite;\n",
+              "  }\n",
+              "\n",
+              "  @keyframes spin {\n",
+              "    0% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "      border-left-color: var(--fill-color);\n",
+              "    }\n",
+              "    20% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    30% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    40% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    60% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    80% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "    90% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "  }\n",
+              "</style>\n",
+              "\n",
+              "  <script>\n",
+              "    async function quickchart(key) {\n",
+              "      const quickchartButtonEl =\n",
+              "        document.querySelector('#' + key + ' button');\n",
+              "      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.\n",
+              "      quickchartButtonEl.classList.add('colab-df-spinner');\n",
+              "      try {\n",
+              "        const charts = await google.colab.kernel.invokeFunction(\n",
+              "            'suggestCharts', [key], {});\n",
+              "      } catch (error) {\n",
+              "        console.error('Error during call to suggestCharts:', error);\n",
+              "      }\n",
+              "      quickchartButtonEl.classList.remove('colab-df-spinner');\n",
+              "      quickchartButtonEl.classList.add('colab-df-quickchart-complete');\n",
+              "    }\n",
+              "    (() => {\n",
+              "      let quickchartButtonEl =\n",
+              "        document.querySelector('#df-71d39c25-7fe9-4f65-857c-e4f5488930d2 button');\n",
+              "      quickchartButtonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "    })();\n",
+              "  </script>\n",
+              "</div>\n",
+              "    </div>\n",
+              "  </div>\n"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "DSf2kIb-_Zct",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "183b7136-5aa3-4206-ec8c-ca3b8fdb770a"
+      },
+      "source": [
+        "df.info()"
+      ],
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "<class 'pandas.core.frame.DataFrame'>\n",
+            "RangeIndex: 65079 entries, 0 to 65078\n",
+            "Data columns (total 7 columns):\n",
+            " #   Column    Non-Null Count  Dtype \n",
+            "---  ------    --------------  ----- \n",
+            " 0     userID  65079 non-null  object\n",
+            " 1   Track     63848 non-null  object\n",
+            " 2   artist    57876 non-null  object\n",
+            " 3   genre     63881 non-null  object\n",
+            " 4     City    65079 non-null  object\n",
+            " 5   time      65079 non-null  object\n",
+            " 6   Day       65079 non-null  object\n",
+            "dtypes: object(7)\n",
+            "memory usage: 3.5+ MB\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "MCB6-dXG_Zct"
+      },
+      "source": [
+        "### Вывод\n",
+        "\n",
+        "В каждой строке таблицы — данные о прослушанном треке. Часть колонок описывает саму композицию: название, исполнителя и жанр. Остальные данные рассказывают о пользователе: из какого он города, когда он слушал музыку.\n",
+        "\n",
+        "Предварительно можно утверждать, что, данных достаточно для проверки гипотез. Но встречаются пропуски в данных, а в названиях колонок — расхождения с хорошим стилем.\n",
+        "\n",
+        "Чтобы двигаться дальше, нужно выполнить предобработку данных."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "SjYF6Ub9_Zct"
+      },
+      "source": [
+        "## Предобработка данных\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "dIaKXr29_Zct"
+      },
+      "source": [
+        "### Стиль заголовков"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "oKOTdF_Q_Zct",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "8e570875-1461-47d4-c0f2-c9feb2c24d61"
+      },
+      "source": [
+        "df.columns"
+      ],
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "Index(['  userID', 'Track', 'artist', 'genre', '  City  ', 'time', 'Day'], dtype='object')"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 7
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ISlFqs5y_Zct"
+      },
+      "source": [
+        "df = df.rename(columns={'  userID': 'user_id', 'Track': 'track', '  City  ': 'city', 'Day': 'day'})"
+      ],
+      "execution_count": 8,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "d4NOAmTW_Zct",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "8dc749d4-4f79-4918-80df-ce58c231189c"
+      },
+      "source": [
+        "df.columns"
+      ],
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "Index(['user_id', 'track', 'artist', 'genre', 'city', 'time', 'day'], dtype='object')"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "5ISfbcfY_Zct"
+      },
+      "source": [
+        "### Пропуски значений"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "RskX29qr_Zct",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "da0a502e-c1a8-4637-ba4e-b0187462c00b"
+      },
+      "source": [
+        "df.isna().sum()"
+      ],
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "user_id       0\n",
+              "track      1231\n",
+              "artist     7203\n",
+              "genre      1198\n",
+              "city          0\n",
+              "time          0\n",
+              "day           0\n",
+              "dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 10
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "KplB5qWs_Zct"
+      },
+      "source": [
+        "columns_to_replace = ['track', 'artist', 'genre']\n",
+        "\n",
+        "for column in columns_to_replace:\n",
+        "    df[column] = df[column].fillna('unknown')"
+      ],
+      "execution_count": 11,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Tq4nYRX4_Zct",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "202ad7ef-d0a9-400f-9222-32a3ff43a8ba"
+      },
+      "source": [
+        "df.isna().sum()"
+      ],
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "user_id    0\n",
+              "track      0\n",
+              "artist     0\n",
+              "genre      0\n",
+              "city       0\n",
+              "time       0\n",
+              "day        0\n",
+              "dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "BWKRtBJ3_Zct"
+      },
+      "source": [
+        "### Дубликаты"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "36eES_S0_Zct",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "d924c32d-aa50-499c-9d23-ccbe22002538"
+      },
+      "source": [
+        "df.duplicated().sum()"
+      ],
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "3826"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "exFHq6tt_Zct"
+      },
+      "source": [
+        "df = df.drop_duplicates().reset_index(drop=True)"
+      ],
+      "execution_count": 14,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "-8PuNWQ0_Zct",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "b60f99ac-06ad-47b7-e8e6-59d55dfc209f"
+      },
+      "source": [
+        "df.duplicated().sum()"
+      ],
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "JIUcqzZN_Zct",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 1000
+        },
+        "outputId": "8a3552dc-7b6a-41c4-c71c-e765c0ab9bac"
+      },
+      "source": [
+        "genres_list = sorted(df['genre'].unique())\n",
+        "\n",
+        "def find_genre(genre):\n",
+        "    count = 0\n",
+        "    for i in genres_list:\n",
+        "        if i == genre:\n",
+        "            count += 1\n",
+        "    return count\n",
+        "\n",
+        "display(genres_list)"
+      ],
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "['acid',\n",
+              " 'acoustic',\n",
+              " 'action',\n",
+              " 'adult',\n",
+              " 'africa',\n",
+              " 'afrikaans',\n",
+              " 'alternative',\n",
+              " 'alternativepunk',\n",
+              " 'ambient',\n",
+              " 'americana',\n",
+              " 'animated',\n",
+              " 'anime',\n",
+              " 'arabesk',\n",
+              " 'arabic',\n",
+              " 'arena',\n",
+              " 'argentinetango',\n",
+              " 'art',\n",
+              " 'audiobook',\n",
+              " 'author',\n",
+              " 'avantgarde',\n",
+              " 'axé',\n",
+              " 'baile',\n",
+              " 'balkan',\n",
+              " 'beats',\n",
+              " 'bigroom',\n",
+              " 'black',\n",
+              " 'bluegrass',\n",
+              " 'blues',\n",
+              " 'bollywood',\n",
+              " 'bossa',\n",
+              " 'brazilian',\n",
+              " 'breakbeat',\n",
+              " 'breaks',\n",
+              " 'broadway',\n",
+              " 'cantautori',\n",
+              " 'cantopop',\n",
+              " 'canzone',\n",
+              " 'caribbean',\n",
+              " 'caucasian',\n",
+              " 'celtic',\n",
+              " 'chamber',\n",
+              " 'chanson',\n",
+              " 'children',\n",
+              " 'chill',\n",
+              " 'chinese',\n",
+              " 'choral',\n",
+              " 'christian',\n",
+              " 'christmas',\n",
+              " 'classical',\n",
+              " 'classicmetal',\n",
+              " 'club',\n",
+              " 'colombian',\n",
+              " 'comedy',\n",
+              " 'conjazz',\n",
+              " 'contemporary',\n",
+              " 'country',\n",
+              " 'cuban',\n",
+              " 'dance',\n",
+              " 'dancehall',\n",
+              " 'dancepop',\n",
+              " 'dark',\n",
+              " 'death',\n",
+              " 'deep',\n",
+              " 'deutschrock',\n",
+              " 'deutschspr',\n",
+              " 'dirty',\n",
+              " 'disco',\n",
+              " 'dnb',\n",
+              " 'documentary',\n",
+              " 'downbeat',\n",
+              " 'downtempo',\n",
+              " 'drum',\n",
+              " 'dub',\n",
+              " 'dubstep',\n",
+              " 'eastern',\n",
+              " 'easy',\n",
+              " 'electronic',\n",
+              " 'electropop',\n",
+              " 'emo',\n",
+              " 'entehno',\n",
+              " 'epicmetal',\n",
+              " 'estrada',\n",
+              " 'ethnic',\n",
+              " 'eurofolk',\n",
+              " 'european',\n",
+              " 'experimental',\n",
+              " 'extrememetal',\n",
+              " 'fado',\n",
+              " 'fairytail',\n",
+              " 'film',\n",
+              " 'fitness',\n",
+              " 'flamenco',\n",
+              " 'folk',\n",
+              " 'folklore',\n",
+              " 'folkmetal',\n",
+              " 'folkrock',\n",
+              " 'folktronica',\n",
+              " 'forró',\n",
+              " 'frankreich',\n",
+              " 'französisch',\n",
+              " 'french',\n",
+              " 'funk',\n",
+              " 'future',\n",
+              " 'gangsta',\n",
+              " 'garage',\n",
+              " 'german',\n",
+              " 'ghazal',\n",
+              " 'gitarre',\n",
+              " 'glitch',\n",
+              " 'gospel',\n",
+              " 'gothic',\n",
+              " 'grime',\n",
+              " 'grunge',\n",
+              " 'gypsy',\n",
+              " 'handsup',\n",
+              " \"hard'n'heavy\",\n",
+              " 'hardcore',\n",
+              " 'hardstyle',\n",
+              " 'hardtechno',\n",
+              " 'hip',\n",
+              " 'hip-hop',\n",
+              " 'hiphop',\n",
+              " 'historisch',\n",
+              " 'holiday',\n",
+              " 'hop',\n",
+              " 'horror',\n",
+              " 'house',\n",
+              " 'hymn',\n",
+              " 'idm',\n",
+              " 'independent',\n",
+              " 'indian',\n",
+              " 'indie',\n",
+              " 'indipop',\n",
+              " 'industrial',\n",
+              " 'inspirational',\n",
+              " 'instrumental',\n",
+              " 'international',\n",
+              " 'irish',\n",
+              " 'jam',\n",
+              " 'japanese',\n",
+              " 'jazz',\n",
+              " 'jewish',\n",
+              " 'jpop',\n",
+              " 'jungle',\n",
+              " 'k-pop',\n",
+              " 'karadeniz',\n",
+              " 'karaoke',\n",
+              " 'kayokyoku',\n",
+              " 'korean',\n",
+              " 'laiko',\n",
+              " 'latin',\n",
+              " 'latino',\n",
+              " 'leftfield',\n",
+              " 'local',\n",
+              " 'lounge',\n",
+              " 'loungeelectronic',\n",
+              " 'lovers',\n",
+              " 'malaysian',\n",
+              " 'mandopop',\n",
+              " 'marschmusik',\n",
+              " 'meditative',\n",
+              " 'mediterranean',\n",
+              " 'melodic',\n",
+              " 'metal',\n",
+              " 'metalcore',\n",
+              " 'mexican',\n",
+              " 'middle',\n",
+              " 'minimal',\n",
+              " 'miscellaneous',\n",
+              " 'modern',\n",
+              " 'mood',\n",
+              " 'mpb',\n",
+              " 'muslim',\n",
+              " 'native',\n",
+              " 'neoklassik',\n",
+              " 'neue',\n",
+              " 'new',\n",
+              " 'newage',\n",
+              " 'newwave',\n",
+              " 'nu',\n",
+              " 'nujazz',\n",
+              " 'numetal',\n",
+              " 'oceania',\n",
+              " 'old',\n",
+              " 'opera',\n",
+              " 'orchestral',\n",
+              " 'other',\n",
+              " 'piano',\n",
+              " 'podcasts',\n",
+              " 'pop',\n",
+              " 'popdance',\n",
+              " 'popelectronic',\n",
+              " 'popeurodance',\n",
+              " 'poprussian',\n",
+              " 'post',\n",
+              " 'posthardcore',\n",
+              " 'postrock',\n",
+              " 'power',\n",
+              " 'progmetal',\n",
+              " 'progressive',\n",
+              " 'psychedelic',\n",
+              " 'punjabi',\n",
+              " 'punk',\n",
+              " 'quebecois',\n",
+              " 'ragga',\n",
+              " 'ram',\n",
+              " 'rancheras',\n",
+              " 'rap',\n",
+              " 'rave',\n",
+              " 'reggae',\n",
+              " 'reggaeton',\n",
+              " 'regional',\n",
+              " 'relax',\n",
+              " 'religious',\n",
+              " 'retro',\n",
+              " 'rhythm',\n",
+              " 'rnb',\n",
+              " 'rnr',\n",
+              " 'rock',\n",
+              " 'rockabilly',\n",
+              " 'rockalternative',\n",
+              " 'rockindie',\n",
+              " 'rockother',\n",
+              " 'romance',\n",
+              " 'roots',\n",
+              " 'ruspop',\n",
+              " 'rusrap',\n",
+              " 'rusrock',\n",
+              " 'russian',\n",
+              " 'salsa',\n",
+              " 'samba',\n",
+              " 'scenic',\n",
+              " 'schlager',\n",
+              " 'self',\n",
+              " 'sertanejo',\n",
+              " 'shanson',\n",
+              " 'shoegazing',\n",
+              " 'showtunes',\n",
+              " 'singer',\n",
+              " 'ska',\n",
+              " 'skarock',\n",
+              " 'slow',\n",
+              " 'smooth',\n",
+              " 'soft',\n",
+              " 'soul',\n",
+              " 'soulful',\n",
+              " 'sound',\n",
+              " 'soundtrack',\n",
+              " 'southern',\n",
+              " 'specialty',\n",
+              " 'speech',\n",
+              " 'spiritual',\n",
+              " 'sport',\n",
+              " 'stonerrock',\n",
+              " 'surf',\n",
+              " 'swing',\n",
+              " 'synthpop',\n",
+              " 'synthrock',\n",
+              " 'sängerportrait',\n",
+              " 'tango',\n",
+              " 'tanzorchester',\n",
+              " 'taraftar',\n",
+              " 'tatar',\n",
+              " 'tech',\n",
+              " 'techno',\n",
+              " 'teen',\n",
+              " 'thrash',\n",
+              " 'top',\n",
+              " 'traditional',\n",
+              " 'tradjazz',\n",
+              " 'trance',\n",
+              " 'tribal',\n",
+              " 'trip',\n",
+              " 'triphop',\n",
+              " 'tropical',\n",
+              " 'türk',\n",
+              " 'türkçe',\n",
+              " 'ukrrock',\n",
+              " 'unknown',\n",
+              " 'urban',\n",
+              " 'uzbek',\n",
+              " 'variété',\n",
+              " 'vi',\n",
+              " 'videogame',\n",
+              " 'vocal',\n",
+              " 'western',\n",
+              " 'world',\n",
+              " 'worldbeat',\n",
+              " 'ïîï',\n",
+              " 'электроника']"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ErNDkmns_Zct"
+      },
+      "source": [
+        "wrong_genres = ('hip', 'hop', 'hip-hop')\n",
+        "correct_genre = ('hiphop')\n",
+        "\n",
+        "def replace_wrong_genres(df, wrong_genres):\n",
+        "    df['genre'] = df['genre'].replace(wrong_genres, correct_genre)\n",
+        "    total = df.loc[df.loc[:,'genre'] == 'wrong_genres']['genre'].count()\n",
+        "    return replace_wrong_genres"
+      ],
+      "execution_count": 17,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "YN5i2hpmSo09",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "00eb8d65-9ded-44c1-bda1-850e36cb5a06"
+      },
+      "source": [
+        "replace_wrong_genres(df,'hip')\n",
+        "df['genre'] = df['genre'].replace('hip', 'hiphop')\n",
+        "total = df.loc[df.loc[:,'genre'] == 'hip']['genre'].count()\n",
+        "print(total)\n",
+        "\n",
+        "replace_wrong_genres(df,'hop')\n",
+        "df['genre'] = df['genre'].replace('hop', 'hiphop')\n",
+        "total = df.loc[df.loc[:,'genre'] == 'hop']['genre'].count()\n",
+        "print(total)\n",
+        "\n",
+        "replace_wrong_genres(df,'hip-hop')\n",
+        "df['genre'] = df['genre'].replace('hip-hop', 'hiphop')\n",
+        "total = df.loc[df.loc[:,'genre'] == 'hip-hop']['genre'].count()\n",
+        "print(total)"
+      ],
+      "execution_count": 18,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "0\n",
+            "0\n",
+            "0\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "wvixALnFG15m",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 1000
+        },
+        "outputId": "3c28ea29-e099-418a-9d0d-e00cb118d0f8"
+      },
+      "source": [
+        "genres_list = sorted(df['genre'].unique())\n",
+        "\n",
+        "def find_genre(genre):\n",
+        "    count = 0\n",
+        "    for i in genres_list:\n",
+        "        if i == genre:\n",
+        "            count += 1\n",
+        "    return count\n",
+        "\n",
+        "display(genres_list)"
+      ],
+      "execution_count": 19,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "['acid',\n",
+              " 'acoustic',\n",
+              " 'action',\n",
+              " 'adult',\n",
+              " 'africa',\n",
+              " 'afrikaans',\n",
+              " 'alternative',\n",
+              " 'alternativepunk',\n",
+              " 'ambient',\n",
+              " 'americana',\n",
+              " 'animated',\n",
+              " 'anime',\n",
+              " 'arabesk',\n",
+              " 'arabic',\n",
+              " 'arena',\n",
+              " 'argentinetango',\n",
+              " 'art',\n",
+              " 'audiobook',\n",
+              " 'author',\n",
+              " 'avantgarde',\n",
+              " 'axé',\n",
+              " 'baile',\n",
+              " 'balkan',\n",
+              " 'beats',\n",
+              " 'bigroom',\n",
+              " 'black',\n",
+              " 'bluegrass',\n",
+              " 'blues',\n",
+              " 'bollywood',\n",
+              " 'bossa',\n",
+              " 'brazilian',\n",
+              " 'breakbeat',\n",
+              " 'breaks',\n",
+              " 'broadway',\n",
+              " 'cantautori',\n",
+              " 'cantopop',\n",
+              " 'canzone',\n",
+              " 'caribbean',\n",
+              " 'caucasian',\n",
+              " 'celtic',\n",
+              " 'chamber',\n",
+              " 'chanson',\n",
+              " 'children',\n",
+              " 'chill',\n",
+              " 'chinese',\n",
+              " 'choral',\n",
+              " 'christian',\n",
+              " 'christmas',\n",
+              " 'classical',\n",
+              " 'classicmetal',\n",
+              " 'club',\n",
+              " 'colombian',\n",
+              " 'comedy',\n",
+              " 'conjazz',\n",
+              " 'contemporary',\n",
+              " 'country',\n",
+              " 'cuban',\n",
+              " 'dance',\n",
+              " 'dancehall',\n",
+              " 'dancepop',\n",
+              " 'dark',\n",
+              " 'death',\n",
+              " 'deep',\n",
+              " 'deutschrock',\n",
+              " 'deutschspr',\n",
+              " 'dirty',\n",
+              " 'disco',\n",
+              " 'dnb',\n",
+              " 'documentary',\n",
+              " 'downbeat',\n",
+              " 'downtempo',\n",
+              " 'drum',\n",
+              " 'dub',\n",
+              " 'dubstep',\n",
+              " 'eastern',\n",
+              " 'easy',\n",
+              " 'electronic',\n",
+              " 'electropop',\n",
+              " 'emo',\n",
+              " 'entehno',\n",
+              " 'epicmetal',\n",
+              " 'estrada',\n",
+              " 'ethnic',\n",
+              " 'eurofolk',\n",
+              " 'european',\n",
+              " 'experimental',\n",
+              " 'extrememetal',\n",
+              " 'fado',\n",
+              " 'fairytail',\n",
+              " 'film',\n",
+              " 'fitness',\n",
+              " 'flamenco',\n",
+              " 'folk',\n",
+              " 'folklore',\n",
+              " 'folkmetal',\n",
+              " 'folkrock',\n",
+              " 'folktronica',\n",
+              " 'forró',\n",
+              " 'frankreich',\n",
+              " 'französisch',\n",
+              " 'french',\n",
+              " 'funk',\n",
+              " 'future',\n",
+              " 'gangsta',\n",
+              " 'garage',\n",
+              " 'german',\n",
+              " 'ghazal',\n",
+              " 'gitarre',\n",
+              " 'glitch',\n",
+              " 'gospel',\n",
+              " 'gothic',\n",
+              " 'grime',\n",
+              " 'grunge',\n",
+              " 'gypsy',\n",
+              " 'handsup',\n",
+              " \"hard'n'heavy\",\n",
+              " 'hardcore',\n",
+              " 'hardstyle',\n",
+              " 'hardtechno',\n",
+              " 'hiphop',\n",
+              " 'historisch',\n",
+              " 'holiday',\n",
+              " 'horror',\n",
+              " 'house',\n",
+              " 'hymn',\n",
+              " 'idm',\n",
+              " 'independent',\n",
+              " 'indian',\n",
+              " 'indie',\n",
+              " 'indipop',\n",
+              " 'industrial',\n",
+              " 'inspirational',\n",
+              " 'instrumental',\n",
+              " 'international',\n",
+              " 'irish',\n",
+              " 'jam',\n",
+              " 'japanese',\n",
+              " 'jazz',\n",
+              " 'jewish',\n",
+              " 'jpop',\n",
+              " 'jungle',\n",
+              " 'k-pop',\n",
+              " 'karadeniz',\n",
+              " 'karaoke',\n",
+              " 'kayokyoku',\n",
+              " 'korean',\n",
+              " 'laiko',\n",
+              " 'latin',\n",
+              " 'latino',\n",
+              " 'leftfield',\n",
+              " 'local',\n",
+              " 'lounge',\n",
+              " 'loungeelectronic',\n",
+              " 'lovers',\n",
+              " 'malaysian',\n",
+              " 'mandopop',\n",
+              " 'marschmusik',\n",
+              " 'meditative',\n",
+              " 'mediterranean',\n",
+              " 'melodic',\n",
+              " 'metal',\n",
+              " 'metalcore',\n",
+              " 'mexican',\n",
+              " 'middle',\n",
+              " 'minimal',\n",
+              " 'miscellaneous',\n",
+              " 'modern',\n",
+              " 'mood',\n",
+              " 'mpb',\n",
+              " 'muslim',\n",
+              " 'native',\n",
+              " 'neoklassik',\n",
+              " 'neue',\n",
+              " 'new',\n",
+              " 'newage',\n",
+              " 'newwave',\n",
+              " 'nu',\n",
+              " 'nujazz',\n",
+              " 'numetal',\n",
+              " 'oceania',\n",
+              " 'old',\n",
+              " 'opera',\n",
+              " 'orchestral',\n",
+              " 'other',\n",
+              " 'piano',\n",
+              " 'podcasts',\n",
+              " 'pop',\n",
+              " 'popdance',\n",
+              " 'popelectronic',\n",
+              " 'popeurodance',\n",
+              " 'poprussian',\n",
+              " 'post',\n",
+              " 'posthardcore',\n",
+              " 'postrock',\n",
+              " 'power',\n",
+              " 'progmetal',\n",
+              " 'progressive',\n",
+              " 'psychedelic',\n",
+              " 'punjabi',\n",
+              " 'punk',\n",
+              " 'quebecois',\n",
+              " 'ragga',\n",
+              " 'ram',\n",
+              " 'rancheras',\n",
+              " 'rap',\n",
+              " 'rave',\n",
+              " 'reggae',\n",
+              " 'reggaeton',\n",
+              " 'regional',\n",
+              " 'relax',\n",
+              " 'religious',\n",
+              " 'retro',\n",
+              " 'rhythm',\n",
+              " 'rnb',\n",
+              " 'rnr',\n",
+              " 'rock',\n",
+              " 'rockabilly',\n",
+              " 'rockalternative',\n",
+              " 'rockindie',\n",
+              " 'rockother',\n",
+              " 'romance',\n",
+              " 'roots',\n",
+              " 'ruspop',\n",
+              " 'rusrap',\n",
+              " 'rusrock',\n",
+              " 'russian',\n",
+              " 'salsa',\n",
+              " 'samba',\n",
+              " 'scenic',\n",
+              " 'schlager',\n",
+              " 'self',\n",
+              " 'sertanejo',\n",
+              " 'shanson',\n",
+              " 'shoegazing',\n",
+              " 'showtunes',\n",
+              " 'singer',\n",
+              " 'ska',\n",
+              " 'skarock',\n",
+              " 'slow',\n",
+              " 'smooth',\n",
+              " 'soft',\n",
+              " 'soul',\n",
+              " 'soulful',\n",
+              " 'sound',\n",
+              " 'soundtrack',\n",
+              " 'southern',\n",
+              " 'specialty',\n",
+              " 'speech',\n",
+              " 'spiritual',\n",
+              " 'sport',\n",
+              " 'stonerrock',\n",
+              " 'surf',\n",
+              " 'swing',\n",
+              " 'synthpop',\n",
+              " 'synthrock',\n",
+              " 'sängerportrait',\n",
+              " 'tango',\n",
+              " 'tanzorchester',\n",
+              " 'taraftar',\n",
+              " 'tatar',\n",
+              " 'tech',\n",
+              " 'techno',\n",
+              " 'teen',\n",
+              " 'thrash',\n",
+              " 'top',\n",
+              " 'traditional',\n",
+              " 'tradjazz',\n",
+              " 'trance',\n",
+              " 'tribal',\n",
+              " 'trip',\n",
+              " 'triphop',\n",
+              " 'tropical',\n",
+              " 'türk',\n",
+              " 'türkçe',\n",
+              " 'ukrrock',\n",
+              " 'unknown',\n",
+              " 'urban',\n",
+              " 'uzbek',\n",
+              " 'variété',\n",
+              " 'vi',\n",
+              " 'videogame',\n",
+              " 'vocal',\n",
+              " 'western',\n",
+              " 'world',\n",
+              " 'worldbeat',\n",
+              " 'ïîï',\n",
+              " 'электроника']"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "jz6a9-7HQUDd"
+      },
+      "source": [
+        "### Вывод\n",
+        "\n",
+        "Предобработка обнаружила три проблемы в данных:\n",
+        "\n",
+        "- нарушения в стиле заголовков,\n",
+        "- пропущенные значения,\n",
+        "- дубликаты — явные и неявные.\n",
+        "\n",
+        "Мы исправили заголовки, чтобы упростить работу с таблицей. Без дубликатов исследование станет более точным.\n",
+        "\n",
+        "Пропущенные значения мы заменили на `'unknown'`. Ещё предстоит увидеть, не повредят ли исследованию пропуски в колонке `genre`.\n",
+        "\n",
+        "Теперь можно перейти к проверке гипотез."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "WttZHXH0SqKk"
+      },
+      "source": [
+        "## Проверка гипотез"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Im936VVi_Zcu"
+      },
+      "source": [
+        "### Сравнение поведения пользователей двух столиц"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "0_Qs96oh_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "760595e1-cdb4-4c4d-a2b9-4d68b01de69b"
+      },
+      "source": [
+        "df.groupby('city')['genre'].count()"
+      ],
+      "execution_count": 20,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "city\n",
+              "Moscow              42741\n",
+              "Saint-Petersburg    18512\n",
+              "Name: genre, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 20
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "uZMKjiJz_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "01b40f3a-6026-44af-e56a-2a799b100d7f"
+      },
+      "source": [
+        "df.groupby('day')['genre'].count()"
+      ],
+      "execution_count": 21,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "day\n",
+              "Friday       21840\n",
+              "Monday       21354\n",
+              "Wednesday    18059\n",
+              "Name: genre, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 21
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Nz3GdQB1_Zcu"
+      },
+      "source": [
+        "def number_tracks(day, city):\n",
+        "    track_list = df[(df['day'] == day) & (df['city'] == city)]\n",
+        "    track_list_count = track_list['user_id'].count()\n",
+        "    return track_list_count"
+      ],
+      "execution_count": 22,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "rJcRATNQ_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "c873a6d7-640e-4795-bb9b-0807ed1e1500"
+      },
+      "source": [
+        "number_tracks('Monday', 'Moscow')"
+      ],
+      "execution_count": 23,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "15740"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 23
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "hq_ncZ5T_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "34bfe604-1b44-404e-e763-e16a15b3cf39"
+      },
+      "source": [
+        "number_tracks('Monday', 'Saint-Petersburg')"
+      ],
+      "execution_count": 24,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "5614"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 24
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "_NTy2VPU_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "2d59915c-2985-44f2-af56-59e5e5c5fe57"
+      },
+      "source": [
+        "number_tracks('Wednesday', 'Moscow')"
+      ],
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "11056"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "j2y3TAwo_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "d5792879-c406-4d9b-cd1d-5675e05e1c01"
+      },
+      "source": [
+        "number_tracks('Wednesday', 'Saint-Petersburg')"
+      ],
+      "execution_count": 26,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "7003"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 26
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "vYDw5u_K_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "ca954145-8813-41db-ff07-19a46317e956"
+      },
+      "source": [
+        "number_tracks('Friday', 'Moscow')"
+      ],
+      "execution_count": 27,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "15945"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 27
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "8_yzFtW3_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "945618f6-c73e-42ba-8928-dab6a6317cd1"
+      },
+      "source": [
+        "number_tracks('Friday', 'Saint-Petersburg')"
+      ],
+      "execution_count": 28,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "5895"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 28
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "APAcLpOr_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 112
+        },
+        "outputId": "42b3b48b-49aa-4aa0-ef6f-930386a66e69"
+      },
+      "source": [
+        "data = [['Moscow',\n",
+        "         number_tracks('Monday', 'Moscow'),\n",
+        "         number_tracks('Wednesday', 'Moscow'),\n",
+        "         number_tracks('Friday', 'Moscow')],\n",
+        "       ['Saint-Petersburg',\n",
+        "        number_tracks('Monday', 'Saint-Petersburg'),\n",
+        "        number_tracks('Wednesday', 'Saint-Petersburg'),\n",
+        "        number_tracks('Friday', 'Saint-Petersburg')]]\n",
+        "columns = ['city','monday','wednesday','friday']\n",
+        "table = pd.DataFrame(data = data, columns = columns)\n",
+        "table"
+      ],
+      "execution_count": 29,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "               city  monday  wednesday  friday\n",
+              "0            Moscow   15740      11056   15945\n",
+              "1  Saint-Petersburg    5614       7003    5895"
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-47c85092-5c04-4cef-8830-219504d89c22\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>city</th>\n",
+              "      <th>monday</th>\n",
+              "      <th>wednesday</th>\n",
+              "      <th>friday</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>Moscow</td>\n",
+              "      <td>15740</td>\n",
+              "      <td>11056</td>\n",
+              "      <td>15945</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>Saint-Petersburg</td>\n",
+              "      <td>5614</td>\n",
+              "      <td>7003</td>\n",
+              "      <td>5895</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-47c85092-5c04-4cef-8830-219504d89c22')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-47c85092-5c04-4cef-8830-219504d89c22 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-47c85092-5c04-4cef-8830-219504d89c22');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "<div id=\"df-a8f71c53-5013-4a44-a170-27339f801d19\">\n",
+              "  <button class=\"colab-df-quickchart\" onclick=\"quickchart('df-a8f71c53-5013-4a44-a170-27339f801d19')\"\n",
+              "            title=\"Suggest charts\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "     width=\"24px\">\n",
+              "    <g>\n",
+              "        <path d=\"M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z\"/>\n",
+              "    </g>\n",
+              "</svg>\n",
+              "  </button>\n",
+              "\n",
+              "<style>\n",
+              "  .colab-df-quickchart {\n",
+              "      --bg-color: #E8F0FE;\n",
+              "      --fill-color: #1967D2;\n",
+              "      --hover-bg-color: #E2EBFA;\n",
+              "      --hover-fill-color: #174EA6;\n",
+              "      --disabled-fill-color: #AAA;\n",
+              "      --disabled-bg-color: #DDD;\n",
+              "  }\n",
+              "\n",
+              "  [theme=dark] .colab-df-quickchart {\n",
+              "      --bg-color: #3B4455;\n",
+              "      --fill-color: #D2E3FC;\n",
+              "      --hover-bg-color: #434B5C;\n",
+              "      --hover-fill-color: #FFFFFF;\n",
+              "      --disabled-bg-color: #3B4455;\n",
+              "      --disabled-fill-color: #666;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart {\n",
+              "    background-color: var(--bg-color);\n",
+              "    border: none;\n",
+              "    border-radius: 50%;\n",
+              "    cursor: pointer;\n",
+              "    display: none;\n",
+              "    fill: var(--fill-color);\n",
+              "    height: 32px;\n",
+              "    padding: 0;\n",
+              "    width: 32px;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart:hover {\n",
+              "    background-color: var(--hover-bg-color);\n",
+              "    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "    fill: var(--button-hover-fill-color);\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart-complete:disabled,\n",
+              "  .colab-df-quickchart-complete:disabled:hover {\n",
+              "    background-color: var(--disabled-bg-color);\n",
+              "    fill: var(--disabled-fill-color);\n",
+              "    box-shadow: none;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-spinner {\n",
+              "    border: 2px solid var(--fill-color);\n",
+              "    border-color: transparent;\n",
+              "    border-bottom-color: var(--fill-color);\n",
+              "    animation:\n",
+              "      spin 1s steps(1) infinite;\n",
+              "  }\n",
+              "\n",
+              "  @keyframes spin {\n",
+              "    0% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "      border-left-color: var(--fill-color);\n",
+              "    }\n",
+              "    20% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    30% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    40% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    60% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    80% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "    90% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "  }\n",
+              "</style>\n",
+              "\n",
+              "  <script>\n",
+              "    async function quickchart(key) {\n",
+              "      const quickchartButtonEl =\n",
+              "        document.querySelector('#' + key + ' button');\n",
+              "      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.\n",
+              "      quickchartButtonEl.classList.add('colab-df-spinner');\n",
+              "      try {\n",
+              "        const charts = await google.colab.kernel.invokeFunction(\n",
+              "            'suggestCharts', [key], {});\n",
+              "      } catch (error) {\n",
+              "        console.error('Error during call to suggestCharts:', error);\n",
+              "      }\n",
+              "      quickchartButtonEl.classList.remove('colab-df-spinner');\n",
+              "      quickchartButtonEl.classList.add('colab-df-quickchart-complete');\n",
+              "    }\n",
+              "    (() => {\n",
+              "      let quickchartButtonEl =\n",
+              "        document.querySelector('#df-a8f71c53-5013-4a44-a170-27339f801d19 button');\n",
+              "      quickchartButtonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "    })();\n",
+              "  </script>\n",
+              "</div>\n",
+              "    </div>\n",
+              "  </div>\n"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 29
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "-EgPIHYu_Zcu"
+      },
+      "source": [
+        "### Вывод\n",
+        "\n",
+        "Данные показывают разницу поведения пользователей:\n",
+        "\n",
+        "- В Москве пик прослушиваний приходится на понедельник и пятницу, а в среду заметен спад.\n",
+        "- В Петербурге, наоборот, больше слушают музыку по средам. Активность в понедельник и пятницу здесь почти в равной мере уступает среде.\n",
+        "\n",
+        "Значит, данные говорят в пользу первой гипотезы."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "atZAxtq4_Zcu"
+      },
+      "source": [
+        "### Музыка в начале и в конце недели"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "qeaFfM_P_Zcu"
+      },
+      "source": [
+        "moscow_general = df[df['city'] == 'Moscow']"
+      ],
+      "execution_count": 30,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ORaVRKto_Zcu"
+      },
+      "source": [
+        "spb_general = df[df['city'] == 'Saint-Petersburg']"
+      ],
+      "execution_count": 31,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "laJT9BYl_Zcu"
+      },
+      "source": [
+        "def genre_weekday(table, day, time1, time2):\n",
+        "    genre_df = table[(table['day'] == day) & (table['time'] > time1) & (table['time'] <= time2)]\n",
+        "\n",
+        "    genre_df_sorted = genre_df.groupby('genre')['genre'].count().sort_values(ascending = False)\n",
+        "    return genre_df_sorted.head(10)"
+      ],
+      "execution_count": 32,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "yz7itPUQ_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "4226a476-82a4-4a08-ad07-60fdbee0ceac"
+      },
+      "source": [
+        "genre_weekday(moscow_general, 'Monday', '07:00', '11:00')"
+      ],
+      "execution_count": 33,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "genre\n",
+              "pop            781\n",
+              "dance          549\n",
+              "electronic     480\n",
+              "rock           474\n",
+              "hiphop         286\n",
+              "ruspop         186\n",
+              "world          181\n",
+              "rusrap         175\n",
+              "alternative    164\n",
+              "unknown        161\n",
+              "Name: genre, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 33
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "kwUcHPdy_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "b6b5e4a5-bf37-4b4b-f0b3-4d984509adcb"
+      },
+      "source": [
+        "genre_weekday(spb_general, 'Monday', '07:00', '11:00')"
+      ],
+      "execution_count": 34,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "genre\n",
+              "pop            218\n",
+              "dance          182\n",
+              "rock           162\n",
+              "electronic     147\n",
+              "hiphop          80\n",
+              "ruspop          64\n",
+              "alternative     58\n",
+              "rusrap          55\n",
+              "jazz            44\n",
+              "classical       40\n",
+              "Name: genre, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 34
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "EzXVRE1o_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "68a1329d-ffb6-4dcf-f5c5-7e7910953ea3"
+      },
+      "source": [
+        "genre_weekday(moscow_general, 'Friday', '17:00', '23:00')"
+      ],
+      "execution_count": 35,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "genre\n",
+              "pop            713\n",
+              "rock           517\n",
+              "dance          495\n",
+              "electronic     482\n",
+              "hiphop         273\n",
+              "world          208\n",
+              "ruspop         170\n",
+              "alternative    163\n",
+              "classical      163\n",
+              "rusrap         142\n",
+              "Name: genre, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 35
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "JZaEKu5v_Zcu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "d65f900f-89f7-4963-987c-87763e2d99ae"
+      },
+      "source": [
+        "genre_weekday(spb_general, 'Friday', '17:00', '23:00')"
+      ],
+      "execution_count": 36,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "genre\n",
+              "pop            256\n",
+              "electronic     216\n",
+              "rock           216\n",
+              "dance          210\n",
+              "hiphop          97\n",
+              "alternative     63\n",
+              "jazz            61\n",
+              "classical       60\n",
+              "rusrap          59\n",
+              "world           54\n",
+              "Name: genre, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 36
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "wrCe4MNX_Zcu"
+      },
+      "source": [
+        "### Вывод\n",
+        "\n",
+        "Если сравнить топ-10 жанров в понедельник утром, можно сделать такие выводы:\n",
+        "\n",
+        "1. В Москве и Петербурге слушают похожую музыку. Единственное отличие — в московский рейтинг вошёл жанр `'world'`, а в петербургский — джаз и классика.\n",
+        "\n",
+        "2. В Москве пропущенных значений оказалось так много, что значение `'unknown'` заняло десятое место среди самых популярных жанров. Значит, пропущенные значения занимают существенную долю в данных и угрожают достоверности исследования.\n",
+        "\n",
+        "Вечер пятницы не меняет эту картину. Некоторые жанры поднимаются немного выше, другие спускаются, но в целом топ-10 остаётся тем же самым.\n",
+        "\n",
+        "Таким образом, вторая гипотеза подтвердилась лишь частично:\n",
+        "* Пользователи слушают похожую музыку в начале недели и в конце.\n",
+        "* Разница между Москвой и Петербургом не слишком выражена. В Москве чаще слушают русскую популярную музыку, в Петербурге — джаз.\n",
+        "\n",
+        "Однако пропуски в данных ставят под сомнение этот результат. В Москве их так много, что рейтинг топ-10 мог бы выглядеть иначе, если бы не утерянные  данные о жанрах."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "JolODAqr_Zcu"
+      },
+      "source": [
+        "### Жанровые предпочтения в Москве и Петербурге\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "r19lIPke_Zcu"
+      },
+      "source": [
+        "moscow_genres = moscow_general.groupby('genre')['genre'].count().sort_values(ascending = False)"
+      ],
+      "execution_count": 37,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "WhCSooF8_Zcv",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "56cbab17-cc0a-4e5e-ce84-687686b2ec80"
+      },
+      "source": [
+        "moscow_genres.head(10)"
+      ],
+      "execution_count": 38,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "genre\n",
+              "pop            5892\n",
+              "dance          4435\n",
+              "rock           3965\n",
+              "electronic     3786\n",
+              "hiphop         2096\n",
+              "classical      1616\n",
+              "world          1432\n",
+              "alternative    1379\n",
+              "ruspop         1372\n",
+              "rusrap         1161\n",
+              "Name: genre, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 38
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "gluLIpE7_Zcv"
+      },
+      "source": [
+        "spb_genres = spb_general.groupby('genre')['genre'].count().sort_values(ascending=False)"
+      ],
+      "execution_count": 39,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "uaGJHjVU_Zcv",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "40a1ee8c-bef4-4f05-ecd8-f165188d599f"
+      },
+      "source": [
+        "spb_genres.head(10)"
+      ],
+      "execution_count": 40,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "genre\n",
+              "pop            2431\n",
+              "dance          1932\n",
+              "rock           1879\n",
+              "electronic     1736\n",
+              "hiphop          960\n",
+              "alternative     649\n",
+              "classical       646\n",
+              "rusrap          564\n",
+              "ruspop          538\n",
+              "world           515\n",
+              "Name: genre, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 40
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "RY51YJYu_Zcv"
+      },
+      "source": [
+        "### Вывод\n",
+        "\n",
+        "Гипотеза частично подтвердилась:\n",
+        "* Поп-музыка — самый популярный жанр в Москве, как и предполагала гипотеза. Более того, в топ-10 жанров встречается близкий жанр — русская популярная музыка.\n",
+        "* Вопреки ожиданиям, рэп одинаково популярен в Москве и Петербурге."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ykKQ0N65_Zcv"
+      },
+      "source": [
+        "## Итоги исследования"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "tjUwbHb3_Zcv"
+      },
+      "source": [
+        "Мы проверили три гипотезы и установили:\n",
+        "\n",
+        "1. День недели по-разному влияет на активность пользователей в Москве и Петербурге.\n",
+        "\n",
+        "Первая гипотеза полностью подтвердилась.\n",
+        "\n",
+        "2. Музыкальные предпочтения не сильно меняются в течение недели — будь то Москва или Петербург. Небольшие различия заметны в начале недели, по понедельникам:\n",
+        "* в Москве слушают музыку жанра `'world'`,\n",
+        "* в Петербурге — джаз и классику.\n",
+        "\n",
+        "Таким образом, вторая гипотеза подтвердилась лишь отчасти. Этот результат мог оказаться иным, если бы не пропуски в данных.\n",
+        "\n",
+        "3. Во вкусах пользователей Москвы и Петербурга больше общего чем различий. Вопреки ожиданиям, предпочтения жанров в Петербурге напоминают московские.\n",
+        "\n",
+        "Третья гипотеза не подтвердилась. Если различия в предпочтениях и существуют, на основной массе пользователей они незаметны.\n",
+        "\n",
+        "**На практике исследования содержат проверки статистических гипотез.**\n",
+        "Из данных одного сервиса не всегда можно сделать вывод о всех жителях города.\n",
+        "Проверки статистических гипотез покажут, насколько они достоверны, исходя из имеющихся данных.\n",
+        "С методами проверок гипотез мы ещё познакомитесь в следующих темах."
+      ]
+    }
+  ]
+}
